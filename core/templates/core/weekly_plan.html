@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Plano da semana – Faculdade{% endblock %}
+
+{% block content %}
+<style>
+  .weekly-shell {
+    position: relative;
+    padding: 24px;
+    border-radius: 28px;
+    background: radial-gradient(circle at 15% 20%, #e0f2fe 0%, #ffffff 45%, #fef3c7 100%);
+    overflow: hidden;
+  }
+  .weekly-shell::before,
+  .weekly-shell::after {
+    content: "";
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    opacity: 0.3;
+    z-index: 0;
+  }
+  .weekly-shell::before {
+    background: #a7f3d0;
+    top: -110px;
+    right: -80px;
+  }
+  .weekly-shell::after {
+    background: #fde68a;
+    bottom: -120px;
+    left: -90px;
+  }
+  .weekly-shell * {
+    position: relative;
+    z-index: 1;
+  }
+  .weekly-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 24px;
+    border-radius: 22px;
+    background: linear-gradient(120deg, #38bdf8 0%, #a7f3d0 55%, #fef3c7 100%);
+    box-shadow: 0 20px 40px rgba(14, 165, 233, 0.16);
+    animation: float-in 0.6s ease both;
+  }
+  .weekly-hero h1 {
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .weekly-hero .subtitle {
+    color: rgba(15, 23, 42, 0.75);
+    font-size: 0.95rem;
+  }
+  .weekly-hero .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .weekly-card {
+    border: 0;
+    border-radius: 20px;
+    box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+    animation: float-in 0.6s ease both;
+  }
+  .weekly-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  }
+  .plan-item {
+    border: 0;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+    animation: pop-in 0.5s ease both;
+  }
+  .plan-item:last-child {
+    margin-bottom: 0;
+  }
+  @keyframes float-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @media (max-width: 991px) {
+    .weekly-hero {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+
+<div class="weekly-shell">
+  <div class="weekly-hero mb-3">
+    <div>
+      <h1 class="h3 mb-0">Plano da semana</h1>
+      <div class="subtitle">Distribuicao baseada nas datas de prova, com foco no que vem antes.</div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <span class="chip"><i class="bi bi-calendar-week"></i> Semana organizada</span>
+      <span class="chip"><i class="bi bi-lightning"></i> Estudo guiado</span>
+    </div>
+  </div>
+
+  <div class="row g-3">
+  {% for day in days %}
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card weekly-card h-100" style="animation-delay: {{ forloop.counter0|add:'1' }}0ms;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ day.date|date:"D, d/m" }}</strong>
+            {% if day.date == today %}
+              <span class="badge bg-primary ms-1">Hoje</span>
+            {% endif %}
+          </div>
+          <span class="badge {{ day.badge_class }}">Carga {{ day.load_label }}</span>
+        </div>
+        <div class="card-body">
+          {% if day.items %}
+            <ul class="list-group list-group-flush">
+              {% for item in day.items %}
+                <li class="list-group-item plan-item" style="animation-delay: {{ forloop.counter0|add:'2' }}0ms;">
+                  <div class="fw-semibold">{{ item.title }}</div>
+                  <div class="text-muted small">{{ item.course }}</div>
+                  {% if item.class_id %}
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                      {% if not item.watched %}
+                        <a class="btn btn-sm btn-outline-success" href="{% url 'class_watched' item.class_id %}?next=/planner/">
+                          <i class="bi bi-play-circle"></i> Assistida
+                        </a>
+                      {% endif %}
+                      <a class="btn btn-sm btn-outline-success" href="{% url 'class_review_p1' item.class_id %}?next=/planner/">
+                        <i class="bi bi-check-circle"></i> Rev P1
+                      </a>
+                      <a class="btn btn-sm btn-outline-primary" href="{% url 'class_review_p2' item.class_id %}?next=/planner/">
+                        <i class="bi bi-check-circle"></i> Rev P2
+                      </a>
+                    </div>
+                  {% endif %}
+                  {% if item.task_id %}
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                      <a class="btn btn-sm btn-success" href="{% url 'task_done' item.task_id %}?next=/planner/">
+                        <i class="bi bi-check2"></i> Concluir tarefa
+                      </a>
+                    </div>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="text-muted small">Sem itens planejados.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+</div>
+{% endblock %}

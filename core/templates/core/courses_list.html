@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Disciplinas – Faculdade{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="h3 mb-0">Disciplinas</h1>
+    <p class="text-muted mb-0">Clique em uma disciplina para ver provas, aulas e tarefas.</p>
+  </div>
+  <div>
+    {% if is_master %}
+    <a class="btn btn-outline-secondary" href="/admin/core/course/add/">+ Adicionar no Admin</a>
+    {% endif %}
+  </div>
+</div>
+
+{% if courses %}
+  <div class="row g-3">
+    {% for c in courses %}
+      <div class="col-12 col-md-6 col-lg-4">
+        <a class="text-decoration-none" href="{% url 'course_detail' c.id %}">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <div class="fw-semibold">{{ c.name }}</div>
+                  <div class="text-muted small">
+                    {% if c.code %}{{ c.code }} • {% endif %}
+                    {% if c.term %}{{ c.term }} • {% endif %}
+                    {{ c.get_status_display }}
+                  </div>
+                </div>
+                <span class="badge text-bg-primary">Abrir</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="alert alert-info">
+    Nenhuma disciplina cadastrada ainda. Crie pelo Admin.
+    {% if is_master %}
+    <a href="/admin/core/course/add/" class="alert-link">Adicionar disciplina</a>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}

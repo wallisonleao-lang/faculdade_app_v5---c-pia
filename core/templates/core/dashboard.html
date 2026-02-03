@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – Faculdade{% endblock %}
+
+{% block content %}
+  <div class="alert alert-info d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <div>
+      <strong>Guia rápido:</strong> veja o passo a passo para começar a usar o app.
+    </div>
+    <a class="btn btn-sm btn-outline-primary" href="{% url 'guide' %}">
+      Abrir guia
+    </a>
+  </div>
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Sora:wght@400;500;600&display=swap");
+
+  .dashboard-shell {
+    position: relative;
+    padding: 24px;
+    border-radius: 28px;
+    background: radial-gradient(circle at 20% 20%, #fff3cc 0%, #ffffff 45%, #eef6ff 100%);
+    overflow: hidden;
+    font-family: "Sora", system-ui, sans-serif;
+  }
+  .dashboard-shell::before,
+  .dashboard-shell::after {
+    content: "";
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    filter: blur(0);
+    opacity: 0.35;
+    z-index: 0;
+  }
+  .dashboard-shell::before {
+    background: #ffd6e0;
+    top: -120px;
+    right: -80px;
+  }
+  .dashboard-shell::after {
+    background: #cfe9ff;
+    bottom: -140px;
+    left: -90px;
+  }
+
+  .dashboard-shell * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px 28px;
+    border-radius: 24px;
+    background: linear-gradient(110deg, #0ea5e9 0%, #38bdf8 40%, #a7f3d0 100%);
+    color: #073b4c;
+    box-shadow: 0 20px 40px rgba(14, 165, 233, 0.18);
+    animation: float-in 0.6s ease both;
+  }
+  .hero-eyebrow {
+    font-family: "Sora", system-ui, sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    color: rgba(7, 59, 76, 0.75);
+    margin-bottom: 6px;
+  }
+  .hero-title {
+    font-family: "Baloo 2", "Sora", system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 6px;
+  }
+  .hero-subtitle {
+    font-family: "Sora", system-ui, sans-serif;
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+    color: rgba(7, 59, 76, 0.85);
+  }
+  .hero-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .fun-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.85);
+    color: #0f172a;
+    box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+  }
+  .fun-chip.outline {
+    background: transparent;
+    border: 1px solid rgba(7, 59, 76, 0.35);
+    color: #073b4c;
+    box-shadow: none;
+  }
+  .fun-chip.soft {
+    background: rgba(255, 255, 255, 0.7);
+  }
+  .hero-badge {
+    min-width: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    font-family: "Sora", system-ui, sans-serif;
+    font-weight: 600;
+  }
+  .badge-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.85);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    color: #0f172a;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);
+  }
+
+  .exam-alert {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 1px solid #ffd49c;
+    background: linear-gradient(90deg, #fff4d6, #ffe7ec);
+    font-size: 0.85rem;
+  }
+  .exam-alert .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #ff6b6b;
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.6);
+    animation: exam-pulse 2.2s infinite;
+  }
+  .exam-alert .spark {
+    display: inline-block;
+    animation: exam-wiggle 3s ease-in-out infinite;
+  }
+  @keyframes exam-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.6); }
+    70% { box-shadow: 0 0 0 8px rgba(255, 107, 107, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+  }
+  @keyframes exam-wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-6deg); }
+  }
+  .urgency-thermometer {
+    height: 10px;
+    border-radius: 999px;
+    background: #e9ecef;
+    overflow: hidden;
+  }
+  .urgency-thermometer .fill {
+    height: 100%;
+    border-radius: 999px;
+  }
+  .urgency-low .fill { width: 35%; background: #4caf50; }
+  .urgency-mid .fill { width: 65%; background: #ffb703; }
+  .urgency-high .fill { width: 90%; background: #e63946; }
+  .priority-rank {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+
+  .card-modern {
+    border: 0;
+    border-radius: 22px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+    animation: float-in 0.6s ease both;
+  }
+  .card-modern .card-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    font-weight: 600;
+  }
+
+  .list-group {
+    display: grid;
+    gap: 12px;
+  }
+  .list-group-item {
+    border: 0;
+    border-radius: 18px !important;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  }
+
+  .btn {
+    border-radius: 999px;
+  }
+
+  @media (max-width: 991px) {
+    .hero-card {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .hero-badge {
+      align-items: flex-start;
+    }
+  }
+
+  @keyframes float-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<div class="dashboard-shell">
+  <div class="hero-card mb-3">
+    <div>
+      <div class="hero-eyebrow">Planejamento inteligente</div>
+      <h1 class="hero-title">Dashboard</h1>
+      <p class="hero-subtitle">O que fazer agora (prioridade automática) com um visual mais leve e divertido.</p>
+      <div class="hero-chips">
+        <span class="fun-chip"><i class="bi bi-stars"></i> Foco do dia</span>
+        <span class="fun-chip outline"><i class="bi bi-graph-up"></i> Prioridade automática</span>
+        <span class="fun-chip soft"><i class="bi bi-lightning"></i> Ações rápidas</span>
+      </div>
+    </div>
+    <div class="hero-badge">
+      <div class="badge-circle"><i class="bi bi-bar-chart"></i></div>
+      <div>Organize e avance</div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+  <div class="col-12 col-lg-8">
+    <div class="card card-modern">
+      <div class="card-header">
+        <strong>Siga a ordem</strong>
+        <div class="text-muted small">Lista única em prioridade (o que estudar agora)</div>
+      </div>
+
+      <div class="card-body">
+        {% if items %}
+          <div class="list-group">
+            {% for item in items %}
+              <div class="list-group-item">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="priority-rank">{{ forloop.counter }}</div>
+
+                  <div class="flex-grow-1">
+                    {% if item.kind == "REVISAO_P1" or item.kind == "REVISAO_P2" %}
+                      <div class="fw-semibold">{{ item.title }} • {{ item.course }}</div>
+                      <div class="text-muted small">
+                        {% if item.target_date %}
+                          Prova: {{ item.target_date|date:"d/m/Y" }} • faltam {{ item.target_date|timeuntil }}
+                        {% else %}
+                          Prova: (sem data)
+                        {% endif %}
+                        • Pendências: {{ item.pending_count }}
+                      </div>
+                    {% else %}
+                      <div class="fw-semibold">{{ item.title }}</div>
+                      <div class="text-muted small">{{ item.course }}</div>
+                      <div class="text-muted small">
+                        {% if item.target_date %}Alvo: {{ item.target_date|date:"d/m/Y" }} • {% endif %}
+                        {{ item.reason }}
+                      </div>
+                    {% endif %}
+
+                    {# ======= LISTA DE PENDÊNCIAS (aulas) para Revisão P1/P2 ======= #}
+                    {% if item.kind == "REVISAO_P1" or item.kind == "REVISAO_P2" %}
+                      {% if item.pending_count > 0 %}
+                        <div class="mt-2">
+                          <button
+                            class="btn btn-sm btn-outline-primary"
+                            type="button"
+                            onclick="const el=document.getElementById('pend-{{ forloop.counter }}'); el.classList.toggle('d-none');"
+                            data-bs-toggle="tooltip" title="Ver aulas pendentes"
+                          >
+                            <i class="bi bi-eye"></i> Ver aulas ({{ item.pending_count }})
+                          </button>
+
+                          <div id="pend-{{ forloop.counter }}" class="d-none mt-2">
+                            <ul class="list-group">
+                              {% for c in item.pending_classes %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                  <span class="small">{{ c.label }}</span>
+
+                                  <div class="d-flex gap-2">
+                                    {% if item.kind == "REVISAO_P1" %}
+                                      <a class="btn btn-sm btn-success" href="{% url 'class_review_p1' c.id %}?next=/" data-bs-toggle="tooltip" title="Marcar como revisada P1">
+                                        <i class="bi bi-check-circle"></i> Rev P1
+                                      </a>
+                                    {% endif %}
+
+                                    {% if item.kind == "REVISAO_P2" %}
+                                      <a class="btn btn-sm btn-primary" href="{% url 'class_review_p2' c.id %}?next=/" data-bs-toggle="tooltip" title="Marcar como revisada P2">
+                                        <i class="bi bi-check-circle"></i> Rev P2
+                                      </a>
+                                    {% endif %}
+                                  </div>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        </div>
+                      {% else %}
+                        <div class="text-muted small mt-2">
+                          Nenhuma aula pendente para esta revisão.
+                        </div>
+                      {% endif %}
+                    {% endif %}
+                  </div>
+
+                  <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                    <span class="badge bg-primary">Score {{ item.score }}</span>
+
+                    {# TAREFA: concluir #}
+                    {% if item.kind == "TAREFA" and item.source_id %}
+                      <a class="btn btn-sm btn-success" href="{% url 'task_done' item.source_id %}?next=/" data-bs-toggle="tooltip" title="Marcar tarefa como concluída">
+                        <i class="bi bi-check2"></i> Concluir
+                      </a>
+                    {% endif %}
+
+                    {# AULA: marcar assistida #}
+                    {% if item.kind == "AULA" and item.source_id %}
+                      <a class="btn btn-sm btn-outline-success" href="{% url 'class_watched' item.source_id %}?next=/" data-bs-toggle="tooltip" title="Marcar aula como assistida">
+                        <i class="bi bi-play-circle"></i> Assistida
+                      </a>
+                    {% endif %}
+
+                    {# Revisão em lote no dashboard: só aparece se houver pendência #}
+                    {% if item.kind == "REVISAO_P1" and item.source_id and item.pending_count > 0 %}
+                      <a class="btn btn-sm btn-outline-success" href="{% url 'course_review_p1_done' item.source_id %}?next=/" data-bs-toggle="tooltip" title="Marcar todas as aulas P1 como revisadas">
+                        <i class="bi bi-check-all"></i> Rev P1 (lote)
+                      </a>
+                    {% endif %}
+
+                    {% if item.kind == "REVISAO_P2" and item.source_id and item.pending_count > 0 %}
+                      <a class="btn btn-sm btn-outline-primary" href="{% url 'course_review_p2_done' item.source_id %}?next=/" data-bs-toggle="tooltip" title="Marcar todas as aulas P2 como revisadas">
+                        <i class="bi bi-check-all"></i> Rev P2 (lote)
+                      </a>
+                    {% endif %}
+                  </div>
+
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-info mb-0">
+            Ainda não há itens. Em seguida vamos cadastrar disciplinas/aulas/tarefas.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div class="card card-modern">
+      <div class="card-header">
+        <strong><i class="bi bi-lightning"></i> Ações rápidas</strong>
+      </div>
+      <div class="card-body d-grid gap-2">
+        <a class="btn btn-outline-primary" href="{% url 'courses_list' %}">
+          <i class="bi bi-book"></i> Ver disciplinas
+        </a>
+
+        <a class="btn btn-outline-primary" href="{% url 'absences' %}">
+          <i class="bi bi-clipboard-heart"></i> Controle de faltas
+        </a>
+
+        <a class="btn btn-outline-secondary" href="{% url 'weekly_plan' %}">
+          <i class="bi bi-calendar-week"></i> Plano da semana
+        </a>
+
+        <a class="btn btn-outline-secondary" href="{% url 'questions_board' %}">
+          <i class="bi bi-ui-checks"></i> Banco de questões
+        </a>
+
+        {% if is_master %}
+        <a class="btn btn-outline-secondary" href="/admin/">
+          <i class="bi bi-gear"></i> Admin
+        </a>
+        {% endif %}
+
+        <a class="btn btn-outline-info" href="{% url 'course_new' %}">
+          <i class="bi bi-plus-circle"></i> Nova disciplina
+        </a>
+
+        <a class="btn btn-outline-info" href="{% url 'class_new' %}">
+          <i class="bi bi-easel2"></i> Nova aula
+        </a>
+
+        <a class="btn btn-outline-info" href="{% url 'exam_new' %}">
+          <i class="bi bi-calendar-check"></i> Nova prova
+        </a>
+
+        <a class="btn btn-outline-warning" href="{% url 'task_new' %}">
+          <i class="bi bi-check-square"></i> Nova tarefa
+        </a>
+
+        <a class="btn btn-outline-warning" href="{% url 'question_new' %}">
+          <i class="bi bi-patch-question"></i> Nova questão
+        </a>
+
+        <a class="btn btn-outline-warning" href="{% url 'questions_import' %}">
+          <i class="bi bi-cloud-upload"></i> Importar questões
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}

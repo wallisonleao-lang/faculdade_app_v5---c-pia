@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Importar questões – Faculdade{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="h3 mb-0">Importar questões</h1>
+    <p class="text-muted mb-0">Envie um CSV por disciplina</p>
+  </div>
+  <div>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'questions_board' %}">Voltar</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data" action="{% url 'questions_import_csv' %}">
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.course.id_for_label }}">Disciplina</label>
+            {{ form.course }}
+            <div class="form-text">Selecione para carregar as aulas.</div>
+            {% if form.course.errors %}
+              <div class="text-danger small mt-1">{{ form.course.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.classes.id_for_label }}">Aulas (opcional)</label>
+            {{ form.classes }}
+            <div class="form-text">Segure Ctrl (Windows) ou Cmd (Mac) para múltiplas.</div>
+            {% if form.classes.errors %}
+              <div class="text-danger small mt-1">{{ form.classes.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.file.id_for_label }}">Arquivo CSV</label>
+            {{ form.file }}
+            <div class="form-text">Arquivo .csv com cabeçalho (opcional se você colar o conteúdo)</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.pasted_csv.id_for_label }}">Ou cole o CSV abaixo</label>
+            {{ form.pasted_csv }}
+          </div>
+          <button class="btn btn-primary" type="submit">Importar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <strong>Formato do CSV</strong>
+      </div>
+      <div class="card-body">
+        <div class="text-muted small mb-2">
+          Cabeçalhos obrigatórios:
+        </div>
+        <code class="d-block mb-3">enunciado,alternativa_a,alternativa_b,alternativa_c,alternativa_d,correta,tema,resolucao</code>
+        <div class="text-muted small mb-2">
+          Exemplo:
+        </div>
+        <pre class="small mb-0">enunciado,alternativa_a,alternativa_b,alternativa_c,alternativa_d,correta,tema,resolucao
+Qual é 2+2?,3,4,5,6,B,Aritmética,"Somar dois números"</pre>
+        <div class="text-muted small mt-3">
+          Dica: se você tiver um Excel, salve como CSV (UTF-8).
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  (function () {
+    const courseSelect = document.getElementById("{{ form.course.id_for_label }}");
+    if (!courseSelect) return;
+    courseSelect.addEventListener("change", function () {
+      if (!this.value) {
+        window.location = "{% url 'questions_import' %}";
+        return;
+      }
+      const params = new URLSearchParams(window.location.search);
+      params.set("course", this.value);
+      window.location = "{% url 'questions_import' %}?" + params.toString();
+    });
+  })();
+</script>
+{% endblock %}

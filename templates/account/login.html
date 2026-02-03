@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+
+{% block title %}Entrar{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <strong>Entrar</strong>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button class="btn btn-primary w-100" type="submit">Entrar</button>
+        </form>
+
+        {% get_providers as socialaccount_providers %}
+        {% if socialaccount_providers %}
+          <div class="text-center my-3 text-muted">ou</div>
+          {% for provider in socialaccount_providers %}
+            {% if provider.id == "google" %}
+              <a class="btn btn-outline-dark w-100" href="{% provider_login_url 'google' %}">
+                <i class="bi bi-google"></i> Entrar com Google
+              </a>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </div>
+      <div class="card-footer bg-white text-center">
+        <a href="{% url 'account_signup' %}">Criar conta</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

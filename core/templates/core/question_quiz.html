@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Treinar questões – Faculdade{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="h3 mb-0">Treinar questões</h1>
+    <p class="text-muted mb-0">Escolha a alternativa e avance</p>
+  </div>
+  <div>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'questions_board' %}">Voltar</a>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <span class="text-muted small">Filtro:</span>
+      <a class="btn btn-sm {% if filter_status == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{% url 'question_quiz' %}?status=all{% if topic_query %}&{{ topic_query }}{% endif %}{% if class_query %}&{{ class_query }}{% endif %}">Todas</a>
+      <a class="btn btn-sm {% if filter_status == 'correct' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{% url 'question_quiz' %}?status=correct{% if topic_query %}&{{ topic_query }}{% endif %}{% if class_query %}&{{ class_query }}{% endif %}">Acertadas</a>
+      <a class="btn btn-sm {% if filter_status == 'incorrect' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{% url 'question_quiz' %}?status=incorrect{% if topic_query %}&{{ topic_query }}{% endif %}{% if class_query %}&{{ class_query }}{% endif %}">Erradas</a>
+      <a class="btn btn-sm {% if filter_status == 'unattempted' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{% url 'question_quiz' %}?status=unattempted{% if topic_query %}&{{ topic_query }}{% endif %}{% if class_query %}&{{ class_query }}{% endif %}">Não feitas</a>
+      <a class="btn btn-sm {% if filter_status == 'attempted' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{% url 'question_quiz' %}?status=attempted{% if topic_query %}&{{ topic_query }}{% endif %}{% if class_query %}&{{ class_query }}{% endif %}">Feitas</a>
+      {% if selected_topics %}
+        <span class="badge bg-light text-dark border">Etiquetas: {{ topic_label }}</span>
+      {% endif %}
+      {% if selected_classes %}
+        <span class="badge bg-light text-dark border">Aulas: {{ selected_classes|length }}</span>
+      {% endif %}
+      <span class="text-muted small ms-auto">{{ progress_current }}/{{ progress_total }}</span>
+    </div>
+    <form method="get" class="row g-2 align-items-end mt-2">
+      <input type="hidden" name="status" value="{{ filter_status }}">
+      <div class="col-12 col-md-6">
+        <label class="form-label">Etiquetas</label>
+        <select class="form-select" name="topic" multiple size="6">
+          {% for t in topics %}
+            <option value="{{ t }}" {% if selected_topics and t in selected_topics %}selected{% endif %}>{{ t }}</option>
+          {% endfor %}
+        </select>
+        <div class="form-text">Segure Ctrl (Windows) ou Cmd (Mac) para múltiplas.</div>
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label">Aulas</label>
+        <select class="form-select" name="class" multiple size="6">
+          {% for c in classes %}
+            <option value="{{ c.id }}" {% if selected_classes and c.id in selected_classes %}selected{% endif %}>{{ c.label }}</option>
+          {% endfor %}
+        </select>
+        <div class="form-text">Segure Ctrl (Windows) ou Cmd (Mac) para múltiplas.</div>
+      </div>
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-outline-primary mt-3 mt-md-0" type="submit">Aplicar</button>
+        <a class="btn btn-outline-secondary mt-3 mt-md-0" href="{% url 'question_quiz' %}?status={{ filter_status }}">Limpar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    {% if feedback %}
+      <div class="alert {% if feedback.is_correct %}alert-success{% else %}alert-danger{% endif %} d-flex align-items-start gap-2">
+        <div class="fs-4">
+          {% if feedback.is_correct %}✅{% else %}❌{% endif %}
+        </div>
+        <div>
+          <div class="fw-semibold">
+            {% if feedback.is_correct %}Você acertou!{% else %}Você errou.{% endif %}
+          </div>
+          {% if feedback.selected_text %}
+            <div class="small text-muted">Sua resposta: {{ feedback.selected_text }}</div>
+          {% endif %}
+          {% if not feedback.is_correct and feedback.correct_text %}
+            <div class="small">Resposta correta: <strong>{{ feedback.correct_text }}</strong></div>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if question %}
+      <div class="fw-semibold mb-3">{{ question.title }}</div>
+    {% elif empty_state %}
+      <div class="text-center py-4">
+        <div class="fs-4">📝</div>
+        <div class="fw-semibold mt-2">Sem questões para treinar</div>
+        <div class="text-muted small">Cadastre questões ou ajuste os filtros acima.</div>
+      </div>
+    {% endif %}
+
+    {% if question and feedback %}
+      <div class="d-grid gap-2">
+        {% for opt in options %}
+          <label class="border rounded p-2 {% if feedback.correct_text == opt.text %}border-success{% endif %}">
+            <input class="form-check-input me-2" type="radio" disabled>
+            {{ opt.text }}
+          </label>
+        {% endfor %}
+      </div>
+      {% if question.resolution %}
+        <div class="mt-3">
+          <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#resolution">
+            Ver resolução
+          </button>
+          <div id="resolution" class="collapse mt-2">
+            <div class="card card-body">
+              {{ question.resolution|linebreaksbr }}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      <a class="btn btn-primary mt-3" href="{% url 'question_quiz' %}?status={{ filter_status }}&next=1{% if topic_filter %}&topic={{ topic_filter }}{% endif %}">Próxima</a>
+    {% elif question %}
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="question_id" value="{{ question.id }}">
+        <input type="hidden" name="status" value="{{ filter_status }}">
+        {% if selected_topics %}
+          {% for t in selected_topics %}
+            <input type="hidden" name="topic" value="{{ t }}">
+          {% endfor %}
+        {% endif %}
+        {% if selected_classes %}
+          {% for c in selected_classes %}
+            <input type="hidden" name="class" value="{{ c }}">
+          {% endfor %}
+        {% endif %}
+
+        <div class="d-grid gap-2">
+          {% for opt in options %}
+            <label class="border rounded p-2">
+              <input class="form-check-input me-2" type="radio" name="option_id" value="{{ opt.id }}" required>
+              {{ opt.text }}
+            </label>
+          {% endfor %}
+        </div>
+
+        <button class="btn btn-primary mt-3" type="submit">Responder</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

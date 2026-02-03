@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} – Faculdade{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ title }}</h1>
+    {% if subtitle %}<p class="text-muted mb-0">{{ subtitle }}</p>{% endif %}
+  </div>
+  <div>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ back_url }}">Voltar</a>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8 col-xl-7">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-4 p-md-5">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.course.id_for_label }}">Disciplina</label>
+            {{ form.course }}
+            {% if form.course.errors %}
+              <div class="text-danger small mt-1">{{ form.course.errors|striptags }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.classes.id_for_label }}">Aulas (opcional)</label>
+            {{ form.classes }}
+            <div class="form-text">Associe uma ou mais aulas da disciplina.</div>
+            {% if form.classes.errors %}
+              <div class="text-danger small mt-1">{{ form.classes.errors|striptags }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.title.id_for_label }}">Enunciado</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+              <div class="text-danger small mt-1">{{ form.title.errors|striptags }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.topic.id_for_label }}">Tema (opcional)</label>
+            {{ form.topic }}
+            <div class="form-text">Separe etiquetas com espaço. Ex: derivadas limites</div>
+            {% if form.topic.errors %}
+              <div class="text-danger small mt-1">{{ form.topic.errors|striptags }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.resolution.id_for_label }}">Resolução (opcional)</label>
+            {{ form.resolution }}
+            {% if form.resolution.errors %}
+              <div class="text-danger small mt-1">{{ form.resolution.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <datalist id="topic-suggestions">
+            {% for t in topics %}
+              <option value="{{ t }}"></option>
+            {% endfor %}
+          </datalist>
+
+          <hr class="my-4">
+          <div class="mb-2 fw-semibold">Alternativas</div>
+          <div class="text-muted small mb-3">Marque apenas uma alternativa como correta.</div>
+
+          {{ formset.management_form }}
+          {% for opt_form in formset %}
+            <div class="border rounded p-3 mb-2">
+              <div class="row g-2 align-items-center">
+                <div class="col-12 col-md-9">
+                  {{ opt_form.text }}
+                  {% if opt_form.text.errors %}
+                    <div class="text-danger small mt-1">{{ opt_form.text.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="form-check">
+                    {{ opt_form.is_correct }}
+                    <label class="form-check-label">Correta</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+
+          <div class="d-flex gap-2 mt-4">
+            <button class="btn btn-primary px-4" type="submit">Salvar</button>
+            <a class="btn btn-outline-secondary" href="{{ back_url }}">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

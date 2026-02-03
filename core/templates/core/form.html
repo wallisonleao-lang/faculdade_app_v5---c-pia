@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} – Faculdade{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ title }}</h1>
+    {% if subtitle %}<p class="text-muted mb-0">{{ subtitle }}</p>{% endif %}
+  </div>
+  <div>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ back_url }}">Voltar</a>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8 col-xl-7">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-4 p-md-5">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger mb-4">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="small text-muted mb-3">Campos com * são obrigatórios.</div>
+
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">
+                {{ field.label }}{% if field.field.required %} *{% endif %}
+              </label>
+              {{ field }}
+              {% if field.help_text %}
+                <div class="form-text">{{ field.help_text }}</div>
+              {% endif %}
+              {% if field.errors %}
+                <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          <div class="d-flex gap-2 mt-4">
+            <button class="btn btn-primary px-4" type="submit">Salvar</button>
+            <a class="btn btn-outline-secondary" href="{{ back_url }}">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Criar conta{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <strong>Criar conta</strong>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <div class="text-danger small mt-1">{{ field.errors }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+          {% if form.errors %}
+            <div class="alert alert-danger">
+              {{ form.errors }}
+            </div>
+          {% endif %}
+          <button class="btn btn-primary w-100" type="submit">Cadastrar</button>
+        </form>
+        <div class="mt-3 small text-muted">
+          A escolha da faculdade é feita depois, em <strong>Meu perfil</strong>.
+        </div>
+      </div>
+      <div class="card-footer bg-white text-center">
+        <a href="{% url 'account_login' %}">Já tenho conta</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

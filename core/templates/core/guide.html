@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Guia rápido{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mb-3">
+  <div class="card-header bg-white">
+    <strong>Guia rápido de uso</strong>
+  </div>
+  <div class="card-body">
+    <ol class="mb-0">
+      <li class="mb-2">
+        <strong>Escolha a faculdade:</strong> vá em <em>Meu perfil</em>, selecione a faculdade (ou informe o código) e clique em <em>Salvar</em>.
+      </li>
+      <li class="mb-2">
+        <strong>Sincronize as aulas:</strong> ainda no perfil, clique em <em>Sincronizar aulas</em> para trazer as aulas base.
+      </li>
+      <li class="mb-2">
+        <strong>Crie suas disciplinas:</strong> acesse <em>Disciplinas</em> e cadastre suas matérias.
+      </li>
+      <li class="mb-2">
+        <strong>Registre aulas e tarefas:</strong> use o botão <em>Ações</em> para criar aulas, provas e tarefas.
+      </li>
+      <li class="mb-2">
+        <strong>Use o Dashboard:</strong> ele prioriza o que fazer no dia e mostra pendências.
+      </li>
+      <li>
+        <strong>Planner e questões:</strong> acesse <em>Semana</em> e <em>Questões</em> para revisar e treinar.
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-white">
+    <strong>Dicas rápidas</strong>
+  </div>
+  <div class="card-body">
+    <ul class="mb-0">
+      <li>As aulas sincronizadas não sobrescrevem suas edições.</li>
+      <li>Se a sua faculdade não existir, peça ao master para cadastrar o código.</li>
+      <li>Use importação CSV na disciplina para cadastrar aulas em lote.</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% block title %}{{ course.name }} – Faculdade{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-0">{{ course.name }}</h1>
+    <div class="text-muted">
+      {% if course.code %}{{ course.code }} • {% endif %}
+      {% if course.term %}{{ course.term }} • {% endif %}
+      {{ course.get_status_display }}
+      {% if course.institution_course %}
+        • Base: {{ course.institution_course }}
+      {% endif %}
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    {% if is_master %}
+    <a class="btn btn-outline-secondary" href="/admin/core/course/{{ course.id }}/change/">Editar</a>
+    {% endif %}
+    <a class="btn btn-outline-primary" href="{% url 'courses_list' %}">Voltar</a>
+  </div>
+</div>
+
+<!-- Progresso -->
+<div class="card shadow-sm mb-3">
+  <div class="card-header bg-white"><strong>Progresso</strong></div>
+  <div class="card-body">
+    <div class="row g-3">
+
+      <!-- Aulas assistidas -->
+      <div class="col-12 col-lg-4">
+        <div class="small text-muted">Aulas assistidas</div>
+        <div class="d-flex justify-content-between">
+          <strong>{{ progress.watched_count }}/{{ progress.total_classes }}</strong>
+          <span class="text-muted">{{ progress.watched_pct }}%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" style="width: {{ progress.watched_pct }}%"></div>
+        </div>
+      </div>
+
+      <!-- Revisão P1 -->
+      <div class="col-12 col-lg-4">
+        <div class="small text-muted">Revisão P1</div>
+        <div class="d-flex justify-content-between">
+          <strong>{{ progress.reviewed_p1_count }}/{{ progress.total_classes }}</strong>
+          <span class="text-muted">{{ progress.p1_pct }}%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" style="width: {{ progress.p1_pct }}%"></div>
+        </div>
+      </div>
+
+      <!-- Revisão P2 -->
+      <div class="col-12 col-lg-4">
+        <div class="small text-muted">Revisão P2</div>
+        <div class="d-flex justify-content-between">
+          <strong>{{ progress.reviewed_p2_count }}/{{ progress.total_classes }}</strong>
+          <span class="text-muted">{{ progress.p2_pct }}%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" style="width: {{ progress.p2_pct }}%"></div>
+        </div>
+      </div>
+
+      <!-- Importação CSV (melhor como bloco separado dentro do card de progresso) -->
+      <div class="col-12">
+        <div class="card border">
+          <div class="card-header d-flex justify-content-between align-items-center bg-white">
+            <strong>Importar aulas (CSV)</strong>
+            <small class="text-muted">Cabeçalho: date,title,class_number</small>
+          </div>
+          <div class="card-body">
+            <form method="post"
+                  action="{% url 'import_classes_csv' course.id %}"
+                  enctype="multipart/form-data"
+                  class="d-flex gap-2 align-items-center flex-wrap">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <input type="file" name="csv_file" accept=".csv,text/csv" class="form-control" required style="max-width:420px;">
+              <button type="submit" class="btn btn-primary">Importar</button>
+            </form>
+
+            <div class="mt-2 small text-muted">
+              Exemplo:
+              <code>date,title,class_number </code>
+              <code>| 2026-01-07,SVO,1</code>
+              <code>| 2026-01-10,Aula 3,3</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Provas -->
+  <div class="col-12 col-lg-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <strong>Provas</strong>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'exam_new_for_course' course.id %}">+ Add</a>
+      </div>
+      <div class="card-body">
+        {% if exams %}
+          <ul class="list-group">
+            {% for e in exams %}
+              <li class="list-group-item d-flex justify-content-between">
+                <span>{{ e.type }}</span>
+                <span class="text-muted">{{ e.date }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-muted">Sem provas cadastradas.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Aulas -->
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <strong>Aulas</strong>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'class_new_for_course' course.id %}">+ Add</a>
+      </div>
+      <div class="card-body">
+        {% if classes %}
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Aula</th>
+                  <th class="text-center">Assistida</th>
+                  <th class="text-center">Rev P1</th>
+                  <th class="text-center">Rev P2</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for a in classes %}
+                  <tr>
+                    <td class="text-muted">{{ a.date }}</td>
+                    <td>
+                      {% if a.class_number %}<span class="badge text-bg-light border">#{{ a.class_number }}</span>{% endif %}
+                      {{ a.title }}
+                    </td>
+                    <td class="text-center">{% if a.watched %}✅{% else %}—{% endif %}</td>
+                    <td class="text-center">{% if a.reviewed_p1 %}✅{% else %}—{% endif %}</td>
+                    <td class="text-center">{% if a.reviewed_p2 %}✅{% else %}—{% endif %}</td>
+                    <td class="text-end d-flex justify-content-end gap-2 flex-wrap">
+                      {% if not a.watched %}
+                        <a class="btn btn-sm btn-outline-success"
+                           href="{% url 'class_watched' a.id %}?next={% url 'course_detail' course.id %}">
+                          Assistida
+                        </a>
+                      {% endif %}
+
+                      {% if not a.reviewed_p1 %}
+                        <a class="btn btn-sm btn-success"
+                           href="{% url 'class_review_p1' a.id %}?next={% url 'course_detail' course.id %}">
+                          ✅ Rev P1
+                        </a>
+                      {% endif %}
+
+                      {% if not a.reviewed_p2 %}
+                        <a class="btn btn-sm btn-primary"
+                           href="{% url 'class_review_p2' a.id %}?next={% url 'course_detail' course.id %}">
+                          ✅ Rev P2
+                        </a>
+                      {% endif %}
+
+                      {% if is_master %}
+                      <a class="btn btn-sm btn-outline-secondary"
+                       href="/admin/core/classsession/{{ a.id }}/change/">
+                        Admin
+                      </a>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-muted">Sem aulas cadastradas.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tarefas -->
+<div class="card shadow-sm mt-3">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center">
+    <strong>Tarefas</strong>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'task_new_for_course' course.id %}">+ Add</a>
+  </div>
+  <div class="card-body">
+    {% if tasks %}
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Status</th>
+              <th>Tipo</th>
+              <th>Bom para</th>
+              <th>Entrega</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in tasks %}
+              <tr>
+                <td>{{ t.title }}</td>
+                <td><span class="badge text-bg-light border">{{ t.get_status_display }}</span></td>
+                <td class="text-muted">{{ t.get_type_display }}</td>
+                <td class="text-muted">{{ t.good_by|default:"—" }}</td>
+                <td class="text-muted">{{ t.due_date|default:"—" }}</td>
+                <td class="text-end d-flex justify-content-end gap-2">
+                  {% if t.status != "DONE" %}
+                    <a class="btn btn-sm btn-success"
+                       href="{% url 'task_done' t.id %}?next={% url 'course_detail' course.id %}">
+                      Concluir
+                    </a>
+                  {% endif %}
+                  {% if is_master %}
+                  <a class="btn btn-sm btn-outline-secondary" href="/admin/core/task/{{ t.id }}/change/">Admin</a>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-muted">Sem tarefas cadastradas.</div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

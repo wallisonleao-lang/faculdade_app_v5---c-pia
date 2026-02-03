@@ -21,15 +21,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+xor$&ht)$s+#e(&qy(6^!4$7iowb)3d^+5oqcfo@a4x*qy)9g'
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "django-insecure-+xor$&ht)$s+#e(&qy(6^!4$7iowb)3d^+5oqcfo@a4x*qy)9g",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "0") == "1"
 
-ALLOWED_HOSTS = (
-    [host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()]
-    or ["faculdade-app-v5-c-pia.onrender.com"]
-)
+raw_hosts = os.getenv("ALLOWED_HOSTS", "")
+ALLOWED_HOSTS = [host.strip() for host in raw_hosts.split(",") if host.strip()]
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+raw_csrf_trusted_origins = os.getenv("CSRF_TRUSTED_ORIGINS", "")
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in raw_csrf_trusted_origins.split(",")
+    if origin.strip()
+]
+if not CSRF_TRUSTED_ORIGINS and not DEBUG:
+    CSRF_TRUSTED_ORIGINS = ["https://faculdade-app-v5-c-pia.onrender.com"]
 
 
 # Application definition

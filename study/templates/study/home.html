@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Estudo — Hoje{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-12 col-lg-7">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h2 class="h4 mb-2">Home de hoje</h2>
+        <p class="text-muted mb-3">Seu resumo do módulo de questões e o próximo passo recomendado.</p>
+        <div class="d-flex flex-wrap gap-3">
+          <div class="p-3 rounded-4 bg-light">
+            <div class="text-muted small">Revisões vencidas</div>
+            <div class="fs-4 fw-bold">{{ due_count }}</div>
+            <div class="text-muted small">Questões com revisão agendada para hoje ou antes.</div>
+            <a class="btn btn-sm btn-outline-primary mt-2" href="{% url 'study_review_start' %}">Iniciar revisão</a>
+          </div>
+          <div class="p-3 rounded-4 bg-light">
+            <div class="text-muted small">Bloco recomendado</div>
+            <div class="fw-semibold">
+              {% if recommended_tag %}
+                {{ recommended_tag.area }} / {{ recommended_tag.tema }} / {{ recommended_tag.subtema }}
+              {% else %}
+                Cadastre questões para recomendar
+              {% endif %}
+            </div>
+            <div class="text-muted small">Baseado nos subtemas com mais erros (últimos 30 dias).</div>
+            <a class="btn btn-sm btn-primary mt-2" href="{% url 'study_session_start' %}">Iniciar bloco</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h3 class="h5 mb-3">Mini métricas</h3>
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="p-3 rounded-4 bg-light">
+              <div class="text-muted small">% acerto (30d)</div>
+              <div class="fs-4 fw-bold">{{ accuracy }}%</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-3 rounded-4 bg-light">
+              <div class="text-muted small">Tempo médio</div>
+              <div class="fs-4 fw-bold">
+                {% if avg_time %}{{ avg_time|floatformat:0 }}s{% else %}—{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="text-muted mt-3 mb-0">Essas métricas consideram as respostas registradas nos últimos 30 dias.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h3 class="h5 mb-2">Como funciona</h3>
+        <ul class="text-muted mb-0">
+          <li>Responda blocos cronometrados com 20–30 questões.</li>
+          <li>Ao errar, registre o motivo e uma regra de bolso.</li>
+          <li>O sistema agenda revisões em 24h → 7d → 30d.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h3 class="h5 mb-3">Atalhos rápidos</h3>
+        <div class="d-grid gap-2">
+          <a class="btn btn-outline-primary" href="{% url 'study_questions' %}">
+            Ver banco de questões
+          </a>
+          <a class="btn btn-outline-primary" href="{% url 'study_questions_import' %}">
+            Importar questões (CSV)
+          </a>
+          <a class="btn btn-outline-secondary" href="{% url 'study_dashboard' %}">
+            Ir para o dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

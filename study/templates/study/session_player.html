@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Estudo — Sessão{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="h5 mb-0">Sessão #{{ session.id }}</h2>
+      <span class="badge bg-primary">{{ progress_index }} / {{ progress_total }}</span>
+    </div>
+    <div class="text-muted">{{ question.tag.area }} / {{ question.tag.tema }} / {{ question.tag.subtema }}</div>
+    <div class="text-muted small mt-2">O tempo começa automaticamente ao carregar a questão.</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <p class="fw-semibold mb-0">{{ question.enunciado }}</p>
+      <span class="badge bg-info text-dark" id="question-timer">00:00</span>
+    </div>
+    {% if show_result %}
+      <div class="alert {% if item.is_correct %}alert-success{% else %}alert-danger{% endif %} mb-3">
+        {% if item.is_correct %}Você acertou.{% else %}Você errou.{% endif %}
+      </div>
+      <div class="row g-2 mb-3">
+        <div class="col-md-6">
+          <div class="text-muted small">Sua resposta</div>
+          <div class="fw-semibold">
+            {{ item.user_answer }}
+            {% if item.user_answer == "A" %}— {{ question.choice_a }}{% endif %}
+            {% if item.user_answer == "B" %}— {{ question.choice_b }}{% endif %}
+            {% if item.user_answer == "C" %}— {{ question.choice_c }}{% endif %}
+            {% if item.user_answer == "D" %}— {{ question.choice_d }}{% endif %}
+            {% if item.user_answer == "E" %}— {{ question.choice_e }}{% endif %}
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="text-muted small">Resposta correta</div>
+          <div class="fw-semibold">
+            {{ question.correct_choice }}
+            {% if question.correct_choice == "A" %}— {{ question.choice_a }}{% endif %}
+            {% if question.correct_choice == "B" %}— {{ question.choice_b }}{% endif %}
+            {% if question.correct_choice == "C" %}— {{ question.choice_c }}{% endif %}
+            {% if question.correct_choice == "D" %}— {{ question.choice_d }}{% endif %}
+            {% if question.correct_choice == "E" %}— {{ question.choice_e }}{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="text-muted small mb-1">Alternativas</div>
+        <ul class="list-group">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><strong>A.</strong> {{ question.choice_a }}</span>
+            {% if item.user_answer == "A" and question.correct_choice != "A" %}
+              <span class="badge bg-danger">Sua escolha</span>
+            {% endif %}
+            {% if question.correct_choice == "A" %}
+              <span class="badge bg-success">Correta</span>
+            {% endif %}
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><strong>B.</strong> {{ question.choice_b }}</span>
+            {% if item.user_answer == "B" and question.correct_choice != "B" %}
+              <span class="badge bg-danger">Sua escolha</span>
+            {% endif %}
+            {% if question.correct_choice == "B" %}
+              <span class="badge bg-success">Correta</span>
+            {% endif %}
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><strong>C.</strong> {{ question.choice_c }}</span>
+            {% if item.user_answer == "C" and question.correct_choice != "C" %}
+              <span class="badge bg-danger">Sua escolha</span>
+            {% endif %}
+            {% if question.correct_choice == "C" %}
+              <span class="badge bg-success">Correta</span>
+            {% endif %}
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><strong>D.</strong> {{ question.choice_d }}</span>
+            {% if item.user_answer == "D" and question.correct_choice != "D" %}
+              <span class="badge bg-danger">Sua escolha</span>
+            {% endif %}
+            {% if question.correct_choice == "D" %}
+              <span class="badge bg-success">Correta</span>
+            {% endif %}
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><strong>E.</strong> {{ question.choice_e }}</span>
+            {% if item.user_answer == "E" and question.correct_choice != "E" %}
+              <span class="badge bg-danger">Sua escolha</span>
+            {% endif %}
+            {% if question.correct_choice == "E" %}
+              <span class="badge bg-success">Correta</span>
+            {% endif %}
+          </li>
+        </ul>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-primary" href="{% url 'study_session_player' session.id %}">Próxima questão</a>
+        {% if result_action == "finish" %}
+          <a class="btn btn-outline-secondary" href="{% url 'study_session_results' session.id %}">Ir para resultados</a>
+        {% endif %}
+      </div>
+    {% else %}
+    <form method="post" class="mt-3">
+      {% csrf_token %}
+      {{ form.time_spent_seconds }}
+      <input type="hidden" name="item_id" value="{{ item.id }}" />
+      <div class="mb-3">
+        {% for value,label in choices %}
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="choice" id="choice-{{ value }}" value="{{ value }}">
+            <label class="form-check-label" for="choice-{{ value }}">
+              <strong>{{ value }}.</strong> {{ label }}
+            </label>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="row g-3">
+        <div class="col-md-4 d-flex align-items-end">
+          <div class="form-check">
+            {{ form.flagged_review }}
+            <label class="form-check-label" for="id_flagged_review">Revisar depois</label>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-3">
+        <button class="btn btn-primary" type="submit" name="action" value="continue">Responder e continuar</button>
+        <button class="btn btn-outline-secondary" type="submit" name="action" value="finish">Salvar e ir para resultados</button>
+      </div>
+      <p class="text-muted small mt-2 mb-0">Use “Salvar e ir para resultados” se quiser analisar erros agora. Caso contrário, siga o bloco.</p>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  (function () {
+    const timerEl = document.getElementById('question-timer');
+    const inputEl = document.getElementById('time-spent-seconds');
+    if (!timerEl || !inputEl) return;
+
+    let seconds = 0;
+    const pad = (n) => n.toString().padStart(2, '0');
+    const tick = () => {
+      seconds += 1;
+      inputEl.value = seconds;
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      timerEl.textContent = `${pad(mins)}:${pad(secs)}`;
+    };
+
+    inputEl.value = 0;
+    timerEl.textContent = '00:00';
+    setInterval(tick, 1000);
+  })();
+</script>
+{% endblock %}

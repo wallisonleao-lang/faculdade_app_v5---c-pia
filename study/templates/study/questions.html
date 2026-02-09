@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Estudo — Questões{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <h2 class="h4 mb-1">Banco de questões</h2>
+        <p class="text-muted mb-0">Cadastre e filtre questões do módulo.</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" href="{% url 'study_questions_import' %}">Importar CSV</a>
+        <a class="btn btn-primary" href="{% url 'study_question_new' %}">Nova questão</a>
+      </div>
+    </div>
+    <div class="alert alert-info">
+      <strong>Dica:</strong> Filtros aceitam múltiplas opções (Ctrl/Cmd + clique). Use o CSV para cadastrar em lote.
+    </div>
+    <form class="row g-3" method="get">
+      <div class="col-md-3">
+        <label class="form-label">Área</label>
+        {{ form.area }}
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Tema</label>
+        {{ form.tema }}
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Subtema</label>
+        {{ form.subtema }}
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Dificuldade</label>
+        {{ form.difficulty }}
+      </div>
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Filtrar</button>
+        <a class="btn btn-outline-secondary" href="{% url 'study_questions' %}">Limpar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tag</th>
+            <th>Dificuldade</th>
+            <th>Fonte</th>
+            <th>Trecho</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for q in questions %}
+          <tr>
+            <td>#{{ q.id }}</td>
+            <td>{{ q.tag.area }} / {{ q.tag.tema }} / {{ q.tag.subtema }}</td>
+            <td>{{ q.get_difficulty_display }}</td>
+            <td>{% if q.source %}{{ q.source }}{% else %}—{% endif %}</td>
+            <td>{% if q.source_snippet %}{{ q.source_snippet }}{% else %}—{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-muted">Nenhuma questão encontrada.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const areaSelect = document.getElementById("id_area");
+    const temaSelect = document.getElementById("id_tema");
+    const subtemaSelect = document.getElementById("id_subtema");
+
+    if (!areaSelect || !temaSelect || !subtemaSelect) return;
+
+    const getSelected = (select) =>
+      Array.from(select.selectedOptions).map((o) => o.value).filter(Boolean);
+
+    const renderOptions = (select, values, keepSelected) => {
+      const keep = new Set(keepSelected || []);
+      select.innerHTML = "";
+      values.forEach((val) => {
+        const opt = document.createElement("option");
+        opt.value = val;
+        opt.textContent = val;
+        if (keep.has(val)) opt.selected = true;
+        select.appendChild(opt);
+      });
+    };
+
+    const fetchOptions = async (areas, temas) => {
+      const params = new URLSearchParams();
+      areas.forEach((a) => params.append("area", a));
+      temas.forEach((t) => params.append("tema", t));
+      const response = await fetch(`/study/api/tag-options/?${params.toString()}`);
+      if (!response.ok) return null;
+      return response.json();
+    };
+
+    const refreshFromArea = async () => {
+      const areas = getSelected(areaSelect);
+      const data = await fetchOptions(areas, []);
+      if (!data) return;
+      const currentTemas = getSelected(temaSelect);
+      const currentSubtemas = getSelected(subtemaSelect);
+      renderOptions(temaSelect, data.temas, currentTemas);
+      renderOptions(subtemaSelect, data.subtemas, currentSubtemas);
+    };
+
+    const refreshFromTema = async () => {
+      const areas = getSelected(areaSelect);
+      const temas = getSelected(temaSelect);
+      const data = await fetchOptions(areas, temas);
+      if (!data) return;
+      const currentSubtemas = getSelected(subtemaSelect);
+      renderOptions(subtemaSelect, data.subtemas, currentSubtemas);
+    };
+
+    areaSelect.addEventListener("change", refreshFromArea);
+    temaSelect.addEventListener("change", refreshFromTema);
+  })();
+</script>
+{% endblock %}

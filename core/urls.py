@@ -23,13 +23,6 @@ from .views import (
     wizard_complete_view,
     master_panel_view,
     sync_institution_classes_view,
-    questions_board_view,
-    question_create_view,
-    question_attempt_create_view,
-    question_quiz_view,
-    question_edit_view,
-    questions_import_view,
-    import_questions_csv
 )
 
 urlpatterns = [
@@ -65,13 +58,5 @@ urlpatterns = [
     path("wizard/complete/", wizard_complete_view, name="wizard_complete"),
     path("sync/classes/", sync_institution_classes_view, name="sync_institution_classes"),
     path("master/", master_panel_view, name="master_panel"),
-    path("questions/", questions_board_view, name="questions_board"),
-    path("questions/new/", question_create_view, name="question_new"),
-    path("questions/<int:id>/edit/", question_edit_view, name="question_edit"),
-    path("questions/import/", questions_import_view, name="questions_import"),
-    path("questions/import/csv/", import_questions_csv, name="questions_import_csv"),
-    path("questions/<int:question_id>/attempt/new/", question_attempt_create_view, name="question_attempt_new"),
-    path("questions/attempt/new/", question_attempt_create_view, name="question_attempt_new_blank"),
-    path("questions/quiz/", question_quiz_view, name="question_quiz"),
 
 ]

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Estudo — Resultados{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <div class="card-body">
+    <h2 class="h5 mb-1">Resultados da sessão #{{ session.id }}</h2>
+    <div class="text-muted">Aproveitamento: <strong>{{ accuracy }}%</strong></div>
+    <p class="text-muted mb-0">Registre os erros para gerar revisões automáticas (24h → 7d → 30d).</p>
+    {% if pending_count > 0 %}
+      <div class="alert alert-warning mt-3 mb-0">
+        Ainda existem {{ pending_count }} questão(ões) não respondida(s).
+        <a class="btn btn-sm btn-outline-dark ms-2" href="{% url 'study_session_player' session.id %}">Continuar sessão</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <h3 class="h6 mb-3">Questões erradas</h3>
+    {% for item in incorrect_items %}
+      <div class="border rounded-4 p-3 mb-3">
+        <div class="fw-semibold">Q{{ item.question.id }} — {{ item.question.tag.area }} / {{ item.question.tag.tema }} / {{ item.question.tag.subtema }}</div>
+        <p class="mb-3">{{ item.question.enunciado }}</p>
+        <div class="row g-2 mb-3">
+          <div class="col-md-6">
+            <div class="text-muted small">Sua resposta</div>
+            <div class="fw-semibold">
+              {{ item.user_answer }}
+              {% if item.user_answer == "A" %}— {{ item.question.choice_a }}{% endif %}
+              {% if item.user_answer == "B" %}— {{ item.question.choice_b }}{% endif %}
+              {% if item.user_answer == "C" %}— {{ item.question.choice_c }}{% endif %}
+              {% if item.user_answer == "D" %}— {{ item.question.choice_d }}{% endif %}
+              {% if item.user_answer == "E" %}— {{ item.question.choice_e }}{% endif %}
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="text-muted small">Resposta correta</div>
+            <div class="fw-semibold">
+              {{ item.question.correct_choice }}
+              {% if item.question.correct_choice == "A" %}— {{ item.question.choice_a }}{% endif %}
+              {% if item.question.correct_choice == "B" %}— {{ item.question.choice_b }}{% endif %}
+              {% if item.question.correct_choice == "C" %}— {{ item.question.choice_c }}{% endif %}
+              {% if item.question.correct_choice == "D" %}— {{ item.question.choice_d }}{% endif %}
+              {% if item.question.correct_choice == "E" %}— {{ item.question.choice_e }}{% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="text-muted small mb-1">Alternativas</div>
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span><strong>A.</strong> {{ item.question.choice_a }}</span>
+              {% if item.user_answer == "A" and item.question.correct_choice != "A" %}
+                <span class="badge bg-danger">Sua escolha</span>
+              {% endif %}
+              {% if item.question.correct_choice == "A" %}
+                <span class="badge bg-success">Correta</span>
+              {% endif %}
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span><strong>B.</strong> {{ item.question.choice_b }}</span>
+              {% if item.user_answer == "B" and item.question.correct_choice != "B" %}
+                <span class="badge bg-danger">Sua escolha</span>
+              {% endif %}
+              {% if item.question.correct_choice == "B" %}
+                <span class="badge bg-success">Correta</span>
+              {% endif %}
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span><strong>C.</strong> {{ item.question.choice_c }}</span>
+              {% if item.user_answer == "C" and item.question.correct_choice != "C" %}
+                <span class="badge bg-danger">Sua escolha</span>
+              {% endif %}
+              {% if item.question.correct_choice == "C" %}
+                <span class="badge bg-success">Correta</span>
+              {% endif %}
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span><strong>D.</strong> {{ item.question.choice_d }}</span>
+              {% if item.user_answer == "D" and item.question.correct_choice != "D" %}
+                <span class="badge bg-danger">Sua escolha</span>
+              {% endif %}
+              {% if item.question.correct_choice == "D" %}
+                <span class="badge bg-success">Correta</span>
+              {% endif %}
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span><strong>E.</strong> {{ item.question.choice_e }}</span>
+              {% if item.user_answer == "E" and item.question.correct_choice != "E" %}
+                <span class="badge bg-danger">Sua escolha</span>
+              {% endif %}
+              {% if item.question.correct_choice == "E" %}
+                <span class="badge bg-success">Correta</span>
+              {% endif %}
+            </li>
+          </ul>
+        </div>
+        {% if item.has_error_log %}
+          <div class="alert alert-success mb-3">Erro já registrado para esta questão.</div>
+        {% endif %}
+        <form method="post" class="row g-2">
+          {% csrf_token %}
+          <input type="hidden" name="item_id" value="{{ item.id }}" />
+          <div class="col-md-4">
+            <label class="form-label">Motivo do erro</label>
+            <select class="form-select" name="error_reason" required {% if item.has_error_log %}disabled{% endif %}>
+              {% for value,label in error_reason_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Regra de bolso</label>
+            <input class="form-control" name="rule_of_thumb" maxlength="200" required {% if item.has_error_log %}disabled{% endif %} />
+            <div class="form-text">Resumo rápido do que deveria lembrar.</div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Nota</label>
+            <input class="form-control" name="note" maxlength="280" {% if item.has_error_log %}disabled{% endif %} />
+          </div>
+          {% if not item.has_error_log %}
+            <div class="col-12">
+              <button class="btn btn-outline-primary" type="submit">Registrar erro</button>
+            </div>
+          {% endif %}
+        </form>
+      </div>
+    {% empty %}
+      <p class="text-muted mb-0">Nenhuma questão errada. Excelente!</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

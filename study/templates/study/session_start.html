@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Estudo — Iniciar sessão{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <h2 class="h4 mb-2">Iniciar bloco de questões</h2>
+    <p class="text-muted mb-3">Defina o tamanho do bloco e, se quiser, filtre por área/tema/subtema.</p>
+    <div class="alert alert-info">
+      <strong>Dica:</strong> Você pode selecionar mais de uma opção em cada filtro (use Ctrl/Cmd + clique).
+      Se não selecionar nada, o sistema usa todas as questões disponíveis.
+    </div>
+    <form method="post" class="row g-3">
+      {% csrf_token %}
+      <div class="col-md-4">
+        <label class="form-label">Qtd. questões</label>
+        {{ form.planned_questions }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Tempo alvo (min)</label>
+        {{ form.target_minutes }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Plano (opcional)</label>
+        {{ form.plan }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Área (opcional)</label>
+        {{ form.area }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Tema (opcional)</label>
+        {{ form.tema }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Subtema (opcional)</label>
+        {{ form.subtema }}
+      </div>
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Começar</button>
+        <a class="btn btn-outline-secondary" href="{% url 'study_questions' %}">Ver questões</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const areaSelect = document.getElementById("id_area");
+    const temaSelect = document.getElementById("id_tema");
+    const subtemaSelect = document.getElementById("id_subtema");
+
+    if (!areaSelect || !temaSelect || !subtemaSelect) return;
+
+    const getSelected = (select) =>
+      Array.from(select.selectedOptions).map((o) => o.value).filter(Boolean);
+
+    const renderOptions = (select, values, keepSelected) => {
+      const keep = new Set(keepSelected || []);
+      select.innerHTML = "";
+      values.forEach((val) => {
+        const opt = document.createElement("option");
+        opt.value = val;
+        opt.textContent = val;
+        if (keep.has(val)) opt.selected = true;
+        select.appendChild(opt);
+      });
+    };
+
+    const fetchOptions = async (areas, temas) => {
+      const params = new URLSearchParams();
+      areas.forEach((a) => params.append("area", a));
+      temas.forEach((t) => params.append("tema", t));
+      const response = await fetch(`/study/api/tag-options/?${params.toString()}`);
+      if (!response.ok) return null;
+      return response.json();
+    };
+
+    const refreshFromArea = async () => {
+      const areas = getSelected(areaSelect);
+      const data = await fetchOptions(areas, []);
+      if (!data) return;
+      const currentTemas = getSelected(temaSelect);
+      const currentSubtemas = getSelected(subtemaSelect);
+      renderOptions(temaSelect, data.temas, currentTemas);
+      renderOptions(subtemaSelect, data.subtemas, currentSubtemas);
+    };
+
+    const refreshFromTema = async () => {
+      const areas = getSelected(areaSelect);
+      const temas = getSelected(temaSelect);
+      const data = await fetchOptions(areas, temas);
+      if (!data) return;
+      const currentSubtemas = getSelected(subtemaSelect);
+      renderOptions(subtemaSelect, data.subtemas, currentSubtemas);
+    };
+
+    areaSelect.addEventListener("change", refreshFromArea);
+    temaSelect.addEventListener("change", refreshFromTema);
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <h2 class="h4 mb-1">{{ title }}</h2>
+        <p class="text-muted mb-0">{{ subtitle }}</p>
+      </div>
+      <a class="btn btn-outline-secondary" href="{{ back_url }}">Voltar</a>
+    </div>
+    <div class="alert alert-info">
+      <strong>Boas práticas:</strong> mantenha enunciados curtos, alternativas objetivas e registre a fonte quando possível.
+    </div>
+    <form method="post" class="row g-3">
+      {% csrf_token %}
+      <div class="col-md-6">
+        <label class="form-label">Tag</label>
+        {{ form.tag }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Fonte</label>
+        {{ form.source }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Plano (opcional)</label>
+        {{ form.plan }}
+      </div>
+      <div class="col-12">
+        <label class="form-label">Enunciado</label>
+        {{ form.enunciado }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Alternativa A</label>
+        {{ form.choice_a }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Alternativa B</label>
+        {{ form.choice_b }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Alternativa C</label>
+        {{ form.choice_c }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Alternativa D</label>
+        {{ form.choice_d }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Alternativa E</label>
+        {{ form.choice_e }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Alternativa correta</label>
+        {{ form.correct_choice }}
+      </div>
+      <div class="col-12">
+        <label class="form-label">Comentário</label>
+        {{ form.explanation }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Dificuldade</label>
+        {{ form.difficulty }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Página</label>
+        {{ form.source_page }}
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Trecho</label>
+        {{ form.source_snippet }}
+      </div>
+      <div class="col-12">
+        <button class="btn btn-primary" type="submit">Salvar questão</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

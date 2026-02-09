@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Coleção de Pacientes{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Coleção de Pacientes</h1>
+    <p class="text-muted mb-0">Cartas obtidas ao encerrar plantões.</p>
+  </div>
+  <a class="btn btn-outline-primary" href="{% url 'hospital_dashboard' %}">
+    <i class="bi bi-arrow-left"></i> Voltar
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-header">Suas cartas</div>
+  <div class="card-body">
+    {% if cards %}
+      <div class="row g-3">
+        {% for item in cards %}
+          <div class="col-lg-6">
+            <div class="card h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <h5 class="mb-0">{{ item.card.title }}</h5>
+                  <span class="badge bg-secondary">{{ item.card.get_rarity_display }}</span>
+                </div>
+                <p class="text-muted small mb-3">{{ item.card.flavor_text }}</p>
+                <div class="d-flex align-items-center justify-content-between">
+                  <span>Quantidade</span>
+                  <strong class="fs-5">{{ item.count }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="mb-0">Nenhuma carta ainda. Encerre um plantão para ganhar a primeira.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

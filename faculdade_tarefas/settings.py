@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'core.apps.CoreConfig',
+    'hospital_game.apps.HospitalGameConfig',
+    'study.apps.StudyConfig',
 
 ]
 
@@ -142,6 +144,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 SITE_ID = 1
 

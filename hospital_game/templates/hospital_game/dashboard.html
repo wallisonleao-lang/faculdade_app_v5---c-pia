@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+{% block title %}Hospital Idle{% endblock %}
+
+{% block content %}
+<style>
+  .hospital-hero {
+    position: relative;
+    border-radius: 28px;
+    padding: 28px;
+    color: #0f172a;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.18), transparent 45%),
+      radial-gradient(circle at 80% 0%, rgba(34, 197, 94, 0.18), transparent 45%),
+      linear-gradient(120deg, rgba(255,255,255,0.92), rgba(255,255,255,0.6));
+    box-shadow: 0 24px 40px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+  }
+  .hospital-hero::after {
+    content: "";
+    position: absolute;
+    right: -40px;
+    top: -30px;
+    width: 220px;
+    height: 220px;
+    background: linear-gradient(140deg, rgba(37,99,235,0.35), rgba(14,165,233,0.1));
+    border-radius: 40% 60% 50% 50%;
+    filter: blur(2px);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .hospital-hero * {
+    position: relative;
+    z-index: 1;
+  }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 18px;
+  }
+  .hero-chip {
+    background: rgba(255,255,255,0.8);
+    border-radius: 16px;
+    padding: 12px 14px;
+    box-shadow: 0 12px 20px rgba(15, 23, 42, 0.08);
+  }
+  .pulse-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); }
+    70% { box-shadow: 0 0 0 12px rgba(34,197,94,0); }
+    100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+  }
+  .progress-track {
+    background: rgba(15,23,42,0.08);
+    border-radius: 999px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0ea5e9, #2563eb);
+    border-radius: 999px;
+    width: 0;
+    transition: width 0.4s ease;
+  }
+</style>
+
+<div class="hospital-hero mb-4">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+      <h1 class="h3 mb-1">Hospital Idle</h1>
+      <p class="text-muted mb-0">Transforme tarefas em evolução hospitalar.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-primary" href="{% url 'hospital_collection' %}">
+        <i class="bi bi-collection"></i> Coleção
+      </a>
+      <button class="btn btn-primary" id="claimBtn">
+        <i class="bi bi-flag"></i> Encerrar plantão
+      </button>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-chip">
+      <div class="small text-muted">Energia total</div>
+      <div class="fs-4" id="energyTotal">0</div>
+    </div>
+    <div class="hero-chip">
+      <div class="small text-muted">Suprimentos totais</div>
+      <div class="fs-4" id="suppliesTotal">0</div>
+    </div>
+    <div class="hero-chip">
+      <div class="small text-muted">Reputação total</div>
+      <div class="fs-4" id="reputationTotal">0</div>
+    </div>
+    <div class="hero-chip">
+      <div class="small text-muted">Plantão de hoje</div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="pulse-dot" id="dailyPulse"></span>
+        <strong id="dailyStatus">Pronto para resgatar</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="alert alert-secondary d-flex align-items-start gap-2 mb-4">
+  <i class="bi bi-info-circle mt-1"></i>
+  <div>
+    <strong>Como funciona:</strong> completar tarefas, aulas e revisões gera ganhos do dia.
+    Quando você <strong>encerra o plantão</strong>, esses ganhos viram recursos permanentes
+    e você pode ganhar reputação e uma carta de paciente.
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-header">Ganhos do dia</div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <span>Energia</span><strong id="energyEarned">0</strong>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span>Suprimentos</span><strong id="suppliesEarned">0</strong>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span>Tarefas concluídas</span><strong id="tasksCompleted">0</strong>
+        </div>
+        <div class="mt-3">
+          <div class="d-flex justify-content-between small text-muted mb-1">
+            <span>Progresso diário</span><span id="tasksProgressLabel">0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="tasksProgress"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card h-100">
+      <div class="card-header">Tempo</div>
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between">
+          <span>Servidor</span><strong id="serverTime">--</strong>
+        </div>
+        <div class="d-flex align-items-center justify-content-between">
+          <span>Último plantão</span><strong id="lastClaim">--</strong>
+        </div>
+        <div class="mt-3 text-muted small">
+          Encerrar plantão transfere os ganhos do dia para o total do hospital e pode gerar reputação + carta.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <span>Setores do hospital</span>
+    <span class="small text-muted">Inicie e conclua melhorias manualmente</span>
+  </div>
+  <div class="card-body">
+    <div class="row g-3" id="departmentsGrid">
+      <div class="col-12">Carregando setores...</div>
+    </div>
+  </div>
+</div>
+
+<div class="alert alert-info mt-4 d-none" id="messageBox"></div>
+
+<form id="csrf-form" class="d-none">
+  {% csrf_token %}
+</form>
+
+<script>
+  const statusUrl = "{% url 'hospital_status' %}";
+  const claimUrl = "{% url 'hospital_claim' %}";
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  function showMessage(text, tone = 'info') {
+    const box = document.getElementById('messageBox');
+    box.className = `alert alert-${tone} mt-4`;
+    box.textContent = text;
+    box.classList.remove('d-none');
+  }
+
+  function renderDepartments(departments) {
+    const grid = document.getElementById('departmentsGrid');
+    grid.innerHTML = '';
+    departments.forEach(dep => {
+      const canFinish = dep.can_finish;
+      const statusText = dep.upgrade_ends_at
+        ? `Finaliza em ${new Date(dep.upgrade_ends_at).toLocaleString()}`
+        : 'Pronto para iniciar';
+
+      const col = document.createElement('div');
+      col.className = 'col-lg-6';
+      col.innerHTML = `
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <h5 class="mb-0">${dep.label}</h5>
+              <span class="badge bg-primary">Nível ${dep.level} / ${dep.max_level}</span>
+            </div>
+            <div class="row g-2 small text-muted">
+              <div class="col-6">Custo energia: <strong>${dep.cost_energy}</strong></div>
+              <div class="col-6">Custo suprimentos: <strong>${dep.cost_supplies}</strong></div>
+              <div class="col-6">Duração: <strong>${Math.round(dep.duration_seconds / 60)} min</strong></div>
+              <div class="col-12">Status: <strong>${statusText}</strong></div>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+              <button class="btn btn-sm btn-outline-primary" data-action="start" data-key="${dep.key}">Iniciar</button>
+              <button class="btn btn-sm btn-outline-success" data-action="finish" data-key="${dep.key}" ${canFinish ? '' : 'disabled'}>Concluir</button>
+            </div>
+          </div>
+        </div>
+      `;
+      grid.appendChild(col);
+    });
+  }
+
+  function updateDailyProgress(tasksCompleted) {
+    const target = 5;
+    const pct = Math.min(Math.round((tasksCompleted / target) * 100), 100);
+    document.getElementById('tasksProgress').style.width = `${pct}%`;
+    document.getElementById('tasksProgressLabel').textContent = `${pct}%`;
+  }
+
+  async function loadStatus() {
+    const response = await fetch(statusUrl);
+    const data = await response.json();
+
+    document.getElementById('energyTotal').textContent = data.profile.energy_total;
+    document.getElementById('suppliesTotal').textContent = data.profile.supplies_total;
+    document.getElementById('reputationTotal').textContent = data.profile.reputation_total;
+    document.getElementById('energyEarned').textContent = data.ledger.energy_earned;
+    document.getElementById('suppliesEarned').textContent = data.ledger.supplies_earned;
+    document.getElementById('tasksCompleted').textContent = data.ledger.tasks_completed_count;
+    document.getElementById('serverTime').textContent = new Date(data.server_time).toLocaleString();
+    document.getElementById('lastClaim').textContent = data.profile.last_daily_claim_at
+      ? new Date(data.profile.last_daily_claim_at).toLocaleString()
+      : '—';
+    const canClaim = data.ledger.tasks_completed_count >= 1 && !data.ledger.daily_claimed;
+    document.getElementById('dailyStatus').textContent = data.ledger.daily_claimed ? 'Plantão encerrado' : (canClaim ? 'Pronto para encerrar' : 'Sem atividades');
+    document.getElementById('dailyPulse').style.background = data.ledger.daily_claimed ? '#94a3b8' : '#22c55e';
+    document.getElementById('claimBtn').disabled = !canClaim;
+
+    updateDailyProgress(data.ledger.tasks_completed_count);
+    renderDepartments(data.departments);
+  }
+
+  async function postAction(url) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      showMessage(data.message || 'Erro ao executar ação.', 'warning');
+    } else {
+      showMessage(data.message || 'Ação concluída.', 'success');
+      if (data.card) {
+        showMessage(`Você recebeu a carta ${data.card.title} (${data.card.rarity}).`, 'success');
+      }
+      await loadStatus();
+    }
+  }
+
+  document.getElementById('claimBtn').addEventListener('click', () => postAction(claimUrl));
+
+  document.getElementById('departmentsGrid').addEventListener('click', event => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    const key = button.getAttribute('data-key');
+    const action = button.getAttribute('data-action');
+    if (!key || !action) return;
+    const url = action === 'start'
+      ? `/hospital/api/department/${key}/start_upgrade/`
+      : `/hospital/api/department/${key}/finish_upgrade/`;
+    postAction(url);
+  });
+
+  loadStatus();
+</script>
+{% endblock %}

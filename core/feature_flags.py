@@ -10,7 +10,8 @@ from .models import FeatureFlag
 DEFAULT_FEATURES = {
     "dashboard": True,
     "weekly_plan": True,
-    "questions": True,
+    "questions": False,
+    "study": True,
     "courses": True,
     "absences": True,
     "quick_add": True,
@@ -30,6 +31,7 @@ def get_feature_map():
     flags = {flag.key: flag.is_enabled for flag in FeatureFlag.objects.all()}
     merged = DEFAULT_FEATURES.copy()
     merged.update(flags)
+    merged["questions"] = False
     return merged
 
 
@@ -50,8 +52,9 @@ def feature_required(key: str):
                     "dashboard": "dashboard",
                     "courses": "courses_list",
                     "weekly_plan": "weekly_plan",
-                    "questions": "questions_board",
+                    "questions": "study_home",
                     "absences": "absences",
+                    "study": "study_home",
                 }
                 for fallback, route in fallback_routes.items():
                     if features.get(fallback, True) or is_master_user(request.user):

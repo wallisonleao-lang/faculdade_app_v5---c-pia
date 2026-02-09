@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Estudo — Revisão{% endblock %}
+{% block content %}
+{% if empty %}
+  <div class="card">
+    <div class="card-body">
+      <h2 class="h4">Revisão espaçada</h2>
+      <p class="text-muted mb-0">Nenhuma revisão pendente hoje.</p>
+    </div>
+  </div>
+{% else %}
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="h5 mb-0">Revisão vencida</h2>
+        <span class="badge bg-warning text-dark">Fila: {{ queue_count }}</span>
+      </div>
+      <div class="text-muted">Etapa atual: {{ schedule.get_stage_display }}</div>
+      <p class="text-muted small mb-0">Revisões vencidas são questões com due_at menor ou igual a agora.</p>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h3 class="h6">Flashcard</h3>
+      {% if flashcard %}
+        <p class="mb-1"><strong>Regra de bolso:</strong> {{ flashcard.rule_of_thumb }}</p>
+        {% if flashcard.note %}<p class="text-muted mb-0">{{ flashcard.note }}</p>{% endif %}
+      {% else %}
+        <p class="text-muted mb-0">Sem flashcard registrado.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <p class="fw-semibold">{{ similar.enunciado }}</p>
+      <form method="post" class="mt-3">
+        {% csrf_token %}
+        <div class="mb-3">
+          {% for value,label in choices %}
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="choice" id="choice-{{ value }}" value="{{ value }}">
+              <label class="form-check-label" for="choice-{{ value }}">
+                <strong>{{ value }}.</strong> {{ label }}
+              </label>
+            </div>
+          {% endfor %}
+        </div>
+        <button class="btn btn-primary" type="submit">Responder revisão</button>
+      </form>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

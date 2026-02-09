@@ -1,6 +1,8 @@
 from datetime import timedelta
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+
+from hospital_game.services.activity_service import record_activity_completion
 from django.db import transaction
 from django.db.models import Avg, Count, Q
 import math
@@ -1021,24 +1023,45 @@ def task_mark_done_view(request, id):
 @feature_required("courses")
 def class_mark_watched_view(request, id):
     cls = get_object_or_404(ClassSession, id=id, course__user=request.user)
-    cls.watched = True
-    cls.save()
+    if not cls.watched:
+        cls.watched = True
+        cls.save(update_fields=["watched"])
+        record_activity_completion(
+            request.user,
+            kind="CLASS_WATCHED",
+            object_id=cls.id,
+            completed_at=timezone.now(),
+        )
     return redirect(request.GET.get("next", "dashboard"))
 
 @login_required
 @feature_required("courses")
 def class_mark_review_p1_view(request, id):
     cls = get_object_or_404(ClassSession, id=id, course__user=request.user)
-    cls.reviewed_p1 = True
-    cls.save()
+    if not cls.reviewed_p1:
+        cls.reviewed_p1 = True
+        cls.save(update_fields=["reviewed_p1"])
+        record_activity_completion(
+            request.user,
+            kind="REVIEW_P1",
+            object_id=cls.id,
+            completed_at=timezone.now(),
+        )
     return redirect(request.GET.get("next", "dashboard"))
 
 @login_required
 @feature_required("courses")
 def class_mark_review_p2_view(request, id):
     cls = get_object_or_404(ClassSession, id=id, course__user=request.user)
-    cls.reviewed_p2 = True
-    cls.save()
+    if not cls.reviewed_p2:
+        cls.reviewed_p2 = True
+        cls.save(update_fields=["reviewed_p2"])
+        record_activity_completion(
+            request.user,
+            kind="REVIEW_P2",
+            object_id=cls.id,
+            completed_at=timezone.now(),
+        )
     return redirect(request.GET.get("next", "dashboard"))
 
 @login_required

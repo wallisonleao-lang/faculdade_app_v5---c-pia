@@ -1,6 +1,6 @@
 # Faculdade App — Dashboard de Estudos
 
-Aplicação Django para organizar disciplinas, aulas, tarefas, provas, faltas e questões, com autenticação, multiusuário, instituição e sincronização de aulas.
+Aplicação Django para organizar disciplinas, aulas, tarefas, provas, faltas e estudos por questões, com autenticação, multiusuário, instituição e sincronização de aulas.
 
 ## Recursos principais
 
@@ -9,7 +9,7 @@ Aplicação Django para organizar disciplinas, aulas, tarefas, provas, faltas e 
 - Instituições (ex.: FMUSP) e base de aulas por instituição
 - Sincronização de aulas da instituição para o usuário
 - Usuário master com controle de recursos (feature flags)
-- Planner semanal, faltas, questões, importação CSV e dashboard de prioridades
+- Planner semanal, faltas, estudo por questões, importação CSV e dashboard de prioridades
 
 ## Requisitos
 
@@ -87,7 +87,7 @@ O comando:
 - Dashboard: `/`
 - Disciplinas: `/courses/`
 - Planner semanal: `/planner/`
-- Questões: `/questions/`
+- Estudo (questões): `/study/`
 - Faltas: `/faltas/`
 - Perfil: `/profile/`
 - Master: `/master/`

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Importar questões{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <h2 class="h4 mb-1">Importar questões (CSV)</h2>
+        <p class="text-muted mb-0">Envie um CSV no formato abaixo ou cole o conteúdo no campo.</p>
+      </div>
+      <a class="btn btn-outline-secondary" href="{% url 'study_questions' %}">Voltar</a>
+    </div>
+
+    <div class="alert alert-info">
+      <strong>Passo a passo:</strong> 1) Gere o CSV com cabeçalho. 2) Use vírgula como separador. 3) Se um campo tiver vírgula, coloque o valor entre aspas.
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="row g-3">
+      {% csrf_token %}
+      <div class="col-12">
+        <label class="form-label">Arquivo CSV</label>
+        {{ form.file }}
+      </div>
+      <div class="col-12">
+        <label class="form-label">Ou cole o CSV</label>
+        {{ form.pasted_csv }}
+        <div class="form-text">O conteúdo colado tem prioridade sobre o arquivo.</div>
+      </div>
+      <div class="col-12">
+        <button class="btn btn-primary" type="submit">Importar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <h3 class="h6 mb-3">Formato esperado</h3>
+    <p class="text-muted">Colunas obrigatórias:</p>
+    <pre class="bg-light p-3 rounded-4">area,tema,subtema,enunciado,choice_a,choice_b,choice_c,choice_d,choice_e,correct_choice</pre>
+
+    <p class="text-muted mb-1">Colunas opcionais:</p>
+    <pre class="bg-light p-3 rounded-4">difficulty,explanation,source_instituicao,source_prova,source_ano,source_page,source_snippet,plan_name</pre>
+
+    <p class="text-muted mb-1">Valores aceitos:</p>
+    <pre class="bg-light p-3 rounded-4">difficulty: EASY | MEDIUM | HARD
+correct_choice: A | B | C | D | E</pre>
+
+    <p class="text-muted mb-1">Exemplo:</p>
+    <pre class="bg-light p-3 rounded-4">area,tema,subtema,enunciado,choice_a,choice_b,choice_c,choice_d,choice_e,correct_choice,difficulty,explanation,source_instituicao,source_prova,source_ano,source_page,source_snippet,plan_name
+Clínica,Cardio,IC,"Paciente com dispneia...",IECA,Diurético,Beta-bloq,Nitrato,Digoxina,A,MEDIUM,"IECA reduz mortalidade",USP,"Residência Clínica",2024,12,"Trecho da prova",Residência USP</pre>
+  </div>
+</div>
+{% endblock %}

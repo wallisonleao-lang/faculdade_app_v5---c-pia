@@ -11,8 +11,6 @@
     </a>
   </div>
 <style>
-  @import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Sora:wght@400;500;600&display=swap");
-
   .dashboard-shell {
     position: relative;
     padding: 24px;
@@ -200,6 +198,123 @@
     border-bottom: 1px solid rgba(15, 23, 42, 0.08);
     font-weight: 600;
   }
+  .hospital-card {
+    display: grid;
+    grid-template-columns: minmax(240px, 1.2fr) minmax(200px, 1fr);
+    gap: 24px;
+    align-items: center;
+    padding: 22px 26px;
+    border-radius: 24px;
+    background: linear-gradient(120deg, rgba(14, 165, 233, 0.12), rgba(34, 197, 94, 0.12), rgba(255,255,255,0.85));
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .hospital-card:hover,
+  .hospital-card:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 24px 42px rgba(15, 23, 42, 0.16);
+  }
+  .hospital-card h3 {
+    font-family: "Baloo 2", "Sora", system-ui, sans-serif;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .hospital-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .hospital-meta .pill {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #0f172a;
+  }
+  .hospital-progress {
+    margin-top: 12px;
+  }
+  .hospital-progress .track {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+  }
+  .hospital-progress .fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #0ea5e9, #22c55e);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+  .hospital-visual {
+    position: relative;
+    height: 180px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #e0f2fe 0%, #f8fafc 100%);
+    overflow: hidden;
+  }
+  .hospital-visual .ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 36px;
+    background: linear-gradient(90deg, #86efac, #4ade80);
+  }
+  .hospital-visual .building {
+    position: absolute;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+  }
+  .hospital-visual .roof {
+    width: 100%;
+    height: 18px;
+    border-radius: 14px 14px 6px 6px;
+    background: #0ea5e9;
+    margin-bottom: 6px;
+  }
+  .hospital-visual .floors {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .hospital-visual .floor {
+    height: 24px;
+    border-radius: 8px;
+    background: #e2e8f0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    padding: 4px 6px;
+    opacity: 0.3;
+    transition: opacity 0.3s ease, background 0.3s ease;
+  }
+  .hospital-visual .floor.active {
+    opacity: 1;
+    background: #ffffff;
+    box-shadow: 0 6px 12px rgba(15, 23, 42, 0.12);
+  }
+  .hospital-visual .window {
+    border-radius: 4px;
+    background: rgba(37, 99, 235, 0.2);
+  }
+  .hospital-visual.stage-4 .roof { background: #22c55e; }
+  .hospital-visual.stage-3 .roof { background: #38bdf8; }
+  .hospital-visual.stage-2 .roof { background: #60a5fa; }
+  .hospital-visual.stage-1 .roof { background: #94a3b8; }
+  @media (max-width: 768px) {
+    .hospital-card {
+      grid-template-columns: 1fr;
+    }
+  }
 
   .list-group {
     display: grid;
@@ -222,6 +337,58 @@
     }
     .hero-badge {
       align-items: flex-start;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-shell {
+      padding: 18px;
+    }
+    .hero-card {
+      padding: 20px;
+    }
+    .hero-title {
+      font-size: 1.6rem;
+    }
+    .hero-chips {
+      gap: 8px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .dashboard-shell {
+      padding: 16px;
+      border-radius: 20px;
+    }
+    .hero-card {
+      padding: 16px;
+      border-radius: 18px;
+    }
+    .badge-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+    }
+    .list-group-item > .d-flex {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .priority-rank {
+      width: 28px;
+      height: 28px;
+      font-size: 0.8rem;
+    }
+    .exam-alert {
+      width: 100%;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .exam-alert strong {
+      width: 100%;
+    }
+    .card-body .btn {
+      width: 100%;
+      justify-content: center;
     }
   }
 
@@ -254,6 +421,65 @@
       <div>Organize e avance</div>
     </div>
   </div>
+
+  <a class="hospital-card mb-4" href="/hospital/">
+    <div>
+      <div class="hero-eyebrow">Hospital Idle</div>
+      <h3>Seu hospital em evolução</h3>
+      <p class="text-muted mb-2">Complete tarefas, ganhe recursos e desbloqueie melhorias.</p>
+      <p class="text-muted mb-2"><strong>Como subir de nível:</strong> conclua tarefas, aulas e revisões, encerre o plantão e use os recursos para evoluir os setores.</p>
+      <div class="hospital-meta">
+        <span class="pill" id="hospitalStageLabel">Nível 0</span>
+        <span class="pill" id="hospitalProgressLabel">0%</span>
+      </div>
+      <div class="hospital-progress">
+        <div class="track"><div class="fill" id="hospitalProgressFill"></div></div>
+      </div>
+    </div>
+    <div class="hospital-visual stage-0" id="hospitalVisual">
+      <div class="building">
+        <div class="roof"></div>
+        <div class="floors">
+          <div class="floor" data-floor="1">
+            <span class="window"></span><span class="window"></span><span class="window"></span><span class="window"></span>
+          </div>
+          <div class="floor" data-floor="2">
+            <span class="window"></span><span class="window"></span><span class="window"></span><span class="window"></span>
+          </div>
+          <div class="floor" data-floor="3">
+            <span class="window"></span><span class="window"></span><span class="window"></span><span class="window"></span>
+          </div>
+          <div class="floor" data-floor="4">
+            <span class="window"></span><span class="window"></span><span class="window"></span><span class="window"></span>
+          </div>
+          <div class="floor" data-floor="5">
+            <span class="window"></span><span class="window"></span><span class="window"></span><span class="window"></span>
+          </div>
+        </div>
+      </div>
+      <div class="ground"></div>
+    </div>
+  </a>
+
+  {% if items %}
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    {% for item in items %}
+      {% if item.kind == "REVISAO_P1" or item.kind == "REVISAO_P2" %}
+        <div class="exam-alert">
+          <span class="dot"></span>
+          <span class="spark"><i class="bi bi-calendar-check"></i></span>
+          <strong>{{ item.course }}</strong>
+          {% if item.target_date %}
+            <span>Prova {{ item.target_date|date:"d/m" }}</span>
+            <span class="text-muted">({{ item.target_date|timeuntil }})</span>
+          {% else %}
+            <span>Prova sem data</span>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
 
   <div class="row g-3">
   <div class="col-12 col-lg-8">
@@ -398,10 +624,6 @@
           <i class="bi bi-calendar-week"></i> Plano da semana
         </a>
 
-        <a class="btn btn-outline-secondary" href="{% url 'questions_board' %}">
-          <i class="bi bi-ui-checks"></i> Banco de questões
-        </a>
-
         {% if is_master %}
         <a class="btn btn-outline-secondary" href="/admin/">
           <i class="bi bi-gear"></i> Admin
@@ -424,17 +646,55 @@
           <i class="bi bi-check-square"></i> Nova tarefa
         </a>
 
-        <a class="btn btn-outline-warning" href="{% url 'question_new' %}">
-          <i class="bi bi-patch-question"></i> Nova questão
-        </a>
-
-        <a class="btn btn-outline-warning" href="{% url 'questions_import' %}">
-          <i class="bi bi-cloud-upload"></i> Importar questões
-        </a>
       </div>
     </div>
   </div>
+  </div>
 </div>
-</div>
+
+<script>
+  async function loadHospitalVisual() {
+    try {
+      const response = await fetch("/hospital/api/status/");
+      if (!response.ok) return;
+      const data = await response.json();
+
+      const totalLevels = data.departments.reduce((sum, dep) => sum + dep.level, 0);
+      const maxLevels = data.departments.reduce((sum, dep) => sum + dep.max_level, 0) || 1;
+      const progress = Math.min(totalLevels / maxLevels, 1);
+      const stage = Math.min(4, Math.floor(progress * 5));
+      const activeFloors = Math.min(5, stage + 1);
+
+      const visual = document.getElementById("hospitalVisual");
+      const label = document.getElementById("hospitalStageLabel");
+      const progressLabel = document.getElementById("hospitalProgressLabel");
+      const progressFill = document.getElementById("hospitalProgressFill");
+
+      if (visual) {
+        visual.className = `hospital-visual stage-${stage}`;
+        visual.querySelectorAll(".floor").forEach((floor) => {
+          const floorIndex = Number(floor.dataset.floor);
+          floor.classList.toggle("active", floorIndex <= activeFloors);
+        });
+      }
+
+      if (label) {
+        label.textContent = `Nível ${totalLevels}`;
+      }
+
+      if (progressLabel) {
+        progressLabel.textContent = `${Math.round(progress * 100)}%`;
+      }
+
+      if (progressFill) {
+        progressFill.style.width = `${Math.round(progress * 100)}%`;
+      }
+    } catch (err) {
+      // Fail silently to avoid breaking the dashboard.
+    }
+  }
+
+  loadHospitalVisual();
+</script>
 
 {% endblock %}
